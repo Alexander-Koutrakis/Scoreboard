@@ -90,7 +90,7 @@ public class LeaderboardController : MonoBehaviour
 
         return lootLockerLeaderboardMembers;
     }  
-     public async Task<int> Test()
+     public async Task<int> TotalRanks()
     {
         bool done = false;
         int totalRanks = 0;

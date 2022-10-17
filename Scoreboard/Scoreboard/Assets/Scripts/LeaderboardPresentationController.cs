@@ -9,6 +9,7 @@ public class LeaderboardPresentationController : MonoBehaviour
     private int highestShownRank=0;
     private int lowestShownRank;
     private int shownRanks = 10;
+    private int totalRanks = 0;
     private LeaderboardController leaderboardController;
     [SerializeField]private GameObject[] leaderboardMemberGOArray;
 
@@ -42,7 +43,9 @@ public class LeaderboardPresentationController : MonoBehaviour
     private async Task<LootLockerLeaderboardMember[]> GetScores()
     {
         LootLockerLeaderboardMember[] lootLockerLeaderboardMembers = await leaderboardController.GetScores(highestShownRank, shownRanks);
+        totalRanks = await leaderboardController.TotalRanks();
         lowestShownRank = highestShownRank + lootLockerLeaderboardMembers.Length - 1;
+        lowestShownRank = Mathf.Clamp(lowestShownRank, 0, totalRanks);
         return lootLockerLeaderboardMembers;
     }
     private void ShowScores(LootLockerLeaderboardMember[] lootLockerLeaderboardMembers)
