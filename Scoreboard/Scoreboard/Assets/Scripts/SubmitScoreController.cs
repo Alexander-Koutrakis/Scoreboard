@@ -1,4 +1,8 @@
 
+/*Summary
+ * This script is responsible for submitting
+ * scores to leaderboard
+ */
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
@@ -27,6 +31,7 @@ public class SubmitScoreController : MonoBehaviour
         onScoreSubmit?.Invoke();
     }
 
+    //Disable Sumbit button if the inputs are empty
     public void CheckIfInputEmpty()
     {
         if (playerIDInput.text.Length > 0 && playerScoreInput.text.Length > 0)

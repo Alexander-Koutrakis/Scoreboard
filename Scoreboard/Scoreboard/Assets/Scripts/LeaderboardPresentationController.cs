@@ -1,3 +1,10 @@
+/*summary:
+ * This script is repsonsible for presenting the leaderboard scores
+ * It contains an Array of 10 game objects that each present the player rank
+ * player name and player score 
+ * Turn pages by setting the highest and lowest shown ranks
+*/
+
     
 using UnityEngine;
 using LootLocker.Requests;
@@ -6,10 +13,9 @@ using System.Threading.Tasks;
 
 public class LeaderboardPresentationController : MonoBehaviour
 {
-    private int highestShownRank=0;
-    private int lowestShownRank;
+    private int highestShownRank=0;// highest Rank shown in board
+    private int lowestShownRank;// lowest Rank shown in board
     private int ranksPerPage = 10;
-    private int shownRanks = 0;
     private int totalRanks = 0;
     private LeaderboardController leaderboardController;
     [SerializeField]private GameObject[] leaderboardMemberGOArray;
@@ -21,14 +27,9 @@ public class LeaderboardPresentationController : MonoBehaviour
         submitScoreController.AddOnSubmitAction(RefreshPage);
         leaderboardController.AddOnSessionStartedAction(RefreshPage);
     }
-    public void ShowTop()
-    {
-        highestShownRank = 0;
-        RefreshPage();
-    }      
+
     public void NextPage()
     {
-
         if (lowestShownRank < totalRanks-1)
         {
             highestShownRank = lowestShownRank + 1;
@@ -40,7 +41,7 @@ public class LeaderboardPresentationController : MonoBehaviour
 
         RefreshPage();
     }
-    public void PreviewsPage()
+    public void PreviousPage()
     {
         if (highestShownRank > 0)
         {
@@ -48,30 +49,31 @@ public class LeaderboardPresentationController : MonoBehaviour
         }
         else
         {
-            int remainningRanks = totalRanks % ranksPerPage;
-            highestShownRank = totalRanks - remainningRanks; ;
-            Debug.Log("Highest rank "+highestShownRank+" remainning ranks"+remainningRanks);
+            int remainingRanks = totalRanks % ranksPerPage;
+            highestShownRank = totalRanks - remainingRanks; ;
         }
         RefreshPage();
     }
     public async void RefreshPage()
     {
-        LootLockerLeaderboardMember[] lootLockerLeaderboardMembers = await GetScores();
+        LootLockerLeaderboardMember[] lootLockerLeaderboardMembers = await GetScores(highestShownRank);
         ShowScores(lootLockerLeaderboardMembers);
     }
-    private async Task<LootLockerLeaderboardMember[]> GetScores()
+
+    /*Get Scores starting on the highestShownRank
+     * and find the lowest showingRank
+     */
+    private async Task<LootLockerLeaderboardMember[]> GetScores(int startingScore)
     {
-        LootLockerLeaderboardMember[] lootLockerLeaderboardMembers = await leaderboardController.GetScores(highestShownRank, ranksPerPage);
+        LootLockerLeaderboardMember[] lootLockerLeaderboardMembers = await leaderboardController.GetScores(startingScore, ranksPerPage);
         totalRanks = leaderboardController.Size;
-        shownRanks = lootLockerLeaderboardMembers.Length;
-        lowestShownRank = highestShownRank + shownRanks-1;
+        int shownRanks = lootLockerLeaderboardMembers.Length;
+        lowestShownRank = startingScore + shownRanks-1;
         lowestShownRank = Mathf.Clamp(lowestShownRank, 0, totalRanks);
-
-        Debug.Log("Highest Rank " + highestShownRank + " Lowest Rank " + lowestShownRank);
-
-
         return lootLockerLeaderboardMembers;
     }
+
+    //Fill each leaderboardMemberGO with the leaderboard data
     private void ShowScores(LootLockerLeaderboardMember[] lootLockerLeaderboardMembers)
     {
         for(int i=0;i< leaderboardMemberGOArray.Length; i++)

@@ -1,3 +1,9 @@
+/*Summary
+ * This script is responsible for the communication 
+ * bettween the application and the leaderboard
+ * using the Lootlocker plugin
+ */
+
 
 using LootLocker.Requests;
 using UnityEngine;
@@ -14,6 +20,7 @@ public class LeaderboardController : MonoBehaviour
         StartSession();
     }
 
+    //Establish connection
     private async void StartSession()
     {
         bool done = false;
@@ -41,7 +48,6 @@ public class LeaderboardController : MonoBehaviour
 
         onSessionStarted?.Invoke();
     }
-
     public async Task SubmitScore(string username,int score)
     {
         bool done = false;
@@ -92,33 +98,27 @@ public class LeaderboardController : MonoBehaviour
 
         return lootLockerLeaderboardMembers;
     }  
-     public async Task<int> TotalRanks()
+      
+    public void AddOnSessionStartedAction(Action action)
     {
-        bool done = false;
-        int totalRanks = 0;
-        LootLockerSDKManager.GetScoreList(ID,0, -1, (response) =>
-          {
-              if (response.success)
-              {
-                  Debug.Log("Successful");
-                  totalRanks = response.pagination.total;
-                  done = true;
-              }
-              else
-              {
-                  Debug.Log("failed: " + response.Error);
-                  done = true;
-              };
-          });
-
-        while (!done)
-        {
-            await Task.Yield();
-        }
-
-        return totalRanks;
+        onSessionStarted += action;
     }
-   
+
+    public void RemoveOnSessionStartedAction(Action action)
+    {
+        onSessionStarted -= action;
+    }
+
+    //Used for testing
+    #region Testing
+    public async void AddRandomScores(int amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+             await SubmitRandomScore();
+        }
+    }
+
     private async Task SubmitRandomScore()
     {
         string randomUser = RandomString(8);
@@ -133,7 +133,7 @@ public class LeaderboardController : MonoBehaviour
             }
             else
             {
-                Debug.Log("Failure "+response.Error);
+                Debug.Log("Failure " + response.Error);
                 done = true;
 
             }
@@ -143,25 +143,6 @@ public class LeaderboardController : MonoBehaviour
         while (!done)
         {
             await Task.Yield();
-        }
-    }
-
-    public void AddOnSessionStartedAction(Action action)
-    {
-        onSessionStarted += action;
-    }
-
-    public void RemoveOnSessionStartedAction(Action action)
-    {
-        onSessionStarted -= action;
-    }
-
-    //Used for testing
-    public async void AddRandomScores(int amount)
-    {
-        for (int i = 0; i < amount; i++)
-        {
-             await SubmitRandomScore();
         }
     }
 
@@ -177,4 +158,6 @@ public class LeaderboardController : MonoBehaviour
     {
         return UnityEngine.Random.Range(1, 9999);
     }
+
+    #endregion
 }
