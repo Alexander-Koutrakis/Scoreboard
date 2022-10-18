@@ -8,6 +8,7 @@ public class LeaderboardController : MonoBehaviour
 {
     [SerializeField] private int ID;
     private Action onSessionStarted;
+    public int Size { private set; get; }
     void Start()
     {
         StartSession();
@@ -74,6 +75,7 @@ public class LeaderboardController : MonoBehaviour
             {                
                 Debug.Log("Successful");
                 lootLockerLeaderboardMembers = response.items;
+                Size = response.pagination.total;
                 done = true;
             }
             else
